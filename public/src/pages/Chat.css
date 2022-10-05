@@ -1,0 +1,49 @@
+.chat_page{
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    padding-top: 2rem;
+}
+
+.chat_container{
+    margin: 0rem auto;
+    width: 90vw;
+    height: 90vh;
+    background-color: rgb(50, 72, 72);
+    display:flex;
+}
+
+.aside{
+    flex: 3;
+    background-color: rgb(71, 130, 110);
+}
+
+.symbol{
+    height: 10vh;
+    font-weight: bold;
+    padding: 1vh;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+    width: inherit;
+    height: max-content;
+    background-color:rgb(47, 74, 37);
+}
+
+.friends{
+    height: 71.5vh ;
+    overflow-y: scroll;
+}
+
+.user_name{
+    font-weight: bold;
+    padding: 1vh;
+    text-align: center;
+    font-size:1.7rem;
+    width: inherit;
+    height: 10vh;
+    background-color:rgb(47, 74, 37);
+}
+.main_content{
+    flex: 7;
+}

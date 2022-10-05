@@ -1,0 +1,132 @@
+*{
+    box-sizing: border-box;
+}
+
+.loginPage{
+    width: 100vw;
+    height: 100vh;
+    background:radial-gradient(black,rgba(27, 196, 196, 0.866)); 
+    /*linear-gradient(to right, #DECBA4, #3E5151);*/
+}
+
+
+.login_container{
+    position: relative;
+    border-radius: 20px 20px;
+    height: 400px;
+    width: 500px;
+    display: flex;
+    margin: 0 auto;
+    top: 16vh;
+
+}
+
+.login_left{
+    background-image: url("../pages/regLogo.jpg");
+    background-size: 250px 400px;
+    background-repeat: no-repeat;
+    height: 400px;
+    width: 250px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.brand{
+    letter-spacing: 0.5rem;
+    margin-top: 3rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: max-content;
+    height: max-content;
+    font-size: 3rem;
+    font-weight: bold;
+    color: rgba(142, 27, 224, 0.827);
+}
+
+.login_right{
+    border-top-right-radius: inherit;
+    border-bottom-right-radius: inherit;
+    background-color: black;
+    width: 250px;
+    height: 400px;
+}
+
+.login_title{
+    width: max-content;
+    height: max-content;
+    margin: 0 auto;
+    color:chocolate;
+    font-size: 2rem;
+    letter-spacing: 0.5rem;
+}
+
+.login_right_content{
+    width: max-content;
+    height: max-content;
+    margin-left:  auto;
+    margin-right: auto;
+    padding-top: 3rem;
+}
+
+.login_right_content input{
+    border-style: solid;
+    background: transparent;
+    border:3px solid rgb(35, 169, 217);
+    border-radius: 0.3rem;
+    height: 2.5rem;
+    color: rgb(32, 169, 123);
+    padding: 1rem;
+}
+
+.login_right_content input:hover{
+    transition: 0.2s ease-in;
+    border: 3px solid rgb(224, 112, 21);
+}
+
+.submit_login{
+    color: whitesmoke;
+    background: transparent;
+    border: solid;
+    border-color: rgb(5, 255, 121);
+    border-radius: 0.3rem;
+    height: 2.5rem;
+    width: 100%;
+}
+
+.submit_login:hover{
+    transition: 0.3s ease-in;
+    border-color: rgb(184, 15, 145);
+}
+
+.login_right_content input::placeholder{
+    padding-left: 1rem;
+    color:cadetblue;
+    font-weight: 500;
+}
+
+@media only screen and (max-width:600px){
+    .login_container{
+        text-align: center;
+        width: max-content;
+        height: max-content;
+        margin: 0 auto;
+        display: block;
+        top: 2rem;
+    }
+    .login_left{
+        background-image: url("../pages/regLogo.jpg");
+        background-size: 250px 200px;
+        background-repeat: no-repeat;
+        height: 200px;
+        width: 250px;
+        border-radius: 20px 20px 0 0;  
+    }
+    .login_right{
+        height: 350px;
+        width: 250px;
+        border-radius: 0 0 20px 20px;  
+    }
+    .login_right_content{
+        margin-top: -1rem;
+    }
+}
