@@ -38,7 +38,7 @@ export default function Home() {
                     <a href='#'>Sanidhya Agarwal</a>&nbsp;&nbsp;
                     <a href='#'>Aditya Agarwal</a>&nbsp;&nbsp;
                     <a href='#'>Rajveer Heera</a>&nbsp;&nbsp;
-                    <a href='#'>Aditya Bharwadwaj</a>
+                    <a href='#'>Aditya Bhardwaj</a>
                 </div>
             </div>
         </div>

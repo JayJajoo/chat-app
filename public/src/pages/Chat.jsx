@@ -1,40 +1,94 @@
-import React, { useEffect } from 'react'
-import Contacts from "../components/Contacts"
-import "./Chat.css"
+import React from 'react'
+import styled from "styled-components"
+import { useState,useEffect } from 'react';
+import {useNavigate} from "react-router-dom"
+import axios from 'axios'
+import {allUsersRoute} from "../utils/APIRoutes"
+import Contacts from '../components/Contacts';
+import Welcome from '../components/Welcome';
+import ChatContainer from '../components/ChatContainer';
 function Chat() {
 
-  return (
-    <div className='chat_page'>
-      <div className='chat_container'>
-        <div className='aside'>
-          <div className='symbol'>VIBERZ</div>
-          <div className='friends'>
-            <Contacts name={"Jay Jajoo"}></Contacts>
-            <Contacts name={"Aditya Agarwal"}></Contacts>
-            <Contacts name={"Aditya Bharadwaj"}></Contacts>
-            <Contacts name={"Rajveer Heera"}></Contacts>
-            <Contacts name={"Sanidhya Agarwal"}></Contacts>
-          </div>
-          <div className='user_name'>Jay Jajoo</div>
-        </div>
-        <div className='main_content'>
-          <div className="text_area">
+  const navigate=useNavigate();
 
-          </div>
-          <div className='message_editor'>
-            <div className='input'>
-              <div>
-                <input  className='input_message' type="text" placeholder='type your message here'></input>
-              </div>
-              <div> 
-                <button class="send_message" type='submit'>Send</button>
-              </div>
-            </div>
-          </div>
-        </div>
+  const [contacts,setConatcts]=useState([])
+  const [currentUser,setCurrentUser]=useState(undefined)
+  const [currentChat, setCurrentChat] = useState(undefined);
+  const [isLoaded,setIsLoaded]=useState(false)
+  const [currentChatIsLoaded,setCurrentChatIsLoaded]=useState(false)
+  const handleChatChange=(chat)=>{
+    setCurrentChat(chat)
+    setCurrentChatIsLoaded(true)
+  }
+
+  useEffect(()=>{
+    try{
+      const checkCurrentUser=async()=>{
+        if(!localStorage.getItem("chat-app-user")){
+          navigate("/login") 
+        }
+        else{
+          setCurrentUser(JSON.parse(localStorage.getItem("chat-app-user")))
+          setIsLoaded(true)
+        }
+      }
+      checkCurrentUser();
+    }catch(err){
+      console.log(err)
+    }
+  },[])
+
+  useEffect(()=>{
+    try {
+      const fetchUsers=async()=>{
+        if(currentUser){
+          if(currentUser.isAvatarPhotoSet){
+            const data=await axios.get(`${allUsersRoute}/${currentUser._id}`);
+            setConatcts(data.data) 
+          }
+          else{
+            navigate("/setAvatar")
+          }
+        }
+      }
+      fetchUsers();
+    } catch (error) {
+      console.log(error)
+    }
+  },[currentUser])
+
+  return (
+    <Container>
+      <div className="container">
+        <Contacts contacts={contacts} currentUser={currentUser} changeChat={handleChatChange}></Contacts>
+        {isLoaded && currentChat===undefined ?
+          <Welcome currentUser={currentUser}></Welcome> 
+          :
+          currentChatIsLoaded && <ChatContainer currentChat={currentChat}></ChatContainer>
+        }
       </div>
-    </div>
-  )
+    </Container>
+  );
 }
 
+const Container = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  background-color: #131324;
+  .container {
+    height: 85vh;
+    width: 85vw;
+    background-color: #00000076;
+    display: grid;
+    grid-template-columns: 25% 75%;
+    @media screen and (min-width: 720px) and (max-width: 1080px) {
+      grid-template-columns: 35% 65%;
+    }
+  }
+`;
 export default Chat
