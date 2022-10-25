@@ -16,6 +16,7 @@ function Chat() {
   const [currentChat, setCurrentChat] = useState(undefined);
   const [isLoaded,setIsLoaded]=useState(false)
   const [currentChatIsLoaded,setCurrentChatIsLoaded]=useState(false)
+
   const handleChatChange=(chat)=>{
     setCurrentChat(chat)
     setCurrentChatIsLoaded(true)

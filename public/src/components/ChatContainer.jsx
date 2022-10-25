@@ -2,11 +2,11 @@ import React from 'react'
 import styled from 'styled-components'
 import Logout from './Logout';
 import Input from './Input';
-
+import Message from "./Message"
 function ChatContainer({currentChat}) {
 
   const handleSendMsg=async(msg)=>{
-    
+   console.log(1) 
   }
 
   return (
@@ -23,6 +23,7 @@ function ChatContainer({currentChat}) {
         <Logout></Logout>
       </div>
       <div className="chat-messages">
+        <Message></Message>
         <Input handleSendMsg={handleSendMsg}></Input>
       </div>
     </Container>
@@ -59,6 +60,7 @@ const Container = styled.div`
     }
   }
   .chat-messages {
+    height:max-content;
     padding: 1rem 2rem;
     display: flex;
     flex-direction: column;
