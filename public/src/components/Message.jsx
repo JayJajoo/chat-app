@@ -8,7 +8,7 @@ function Message() {
 }
 
 const Container=styled.div`
-    height:58.5vh;
+    height:86vh;
 `
 
 export default Message

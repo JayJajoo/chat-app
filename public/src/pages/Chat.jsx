@@ -1,13 +1,16 @@
 import React from 'react'
 import styled from "styled-components"
-import { useState,useEffect } from 'react';
+import { useState,useEffect,useRef } from 'react';
 import {useNavigate} from "react-router-dom"
 import axios from 'axios'
-import {allUsersRoute} from "../utils/APIRoutes"
+import {host,allUsersRoute} from "../utils/APIRoutes"
 import Contacts from '../components/Contacts';
 import Welcome from '../components/Welcome';
 import ChatContainer from '../components/ChatContainer';
+import {io} from "socket.io-client"
+
 function Chat() {
+  const socket=useRef()
 
   const navigate=useNavigate();
 
@@ -40,6 +43,13 @@ function Chat() {
   },[])
 
   useEffect(()=>{
+    if(currentUser){
+      socket.current= io(host)
+      socket.current.emit("add-user",currentUser._id)
+    }
+  },[currentUser])
+
+  useEffect(()=>{
     try {
       const fetchUsers=async()=>{
         if(currentUser){
@@ -65,7 +75,14 @@ function Chat() {
         {isLoaded && currentChat===undefined ?
           <Welcome currentUser={currentUser}></Welcome> 
           :
-          currentChatIsLoaded && <ChatContainer currentChat={currentChat}></ChatContainer>
+          currentChatIsLoaded 
+          && 
+          <ChatContainer 
+            currentChat={currentChat} 
+            currentUser={currentUser}
+            socket={socket}
+            >
+          </ChatContainer>
         }
       </div>
     </Container>
