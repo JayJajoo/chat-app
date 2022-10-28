@@ -2,13 +2,11 @@ import React,{useState,useEffect, useRef} from 'react'
 import styled from 'styled-components'
 import Logout from './Logout';
 import Input from './Input';
-import Message from "./Message"
 import axios from "axios"
 import {sendMessageRoute,getMessagesRoute} from "../utils/APIRoutes"
 import {v4 as uuidv4} from "uuid"
 
 function ChatContainer({currentChat,currentUser,socket}) {
-
   const scrollRef=useRef()
   const [messages,setMessages] = useState([])
   const [arrivalMessage,setArrivalMessage]=useState(null)
@@ -24,6 +22,13 @@ function ChatContainer({currentChat,currentUser,socket}) {
     }
     onChanegCurrentChat();
   },[currentChat])
+
+  const encrypt=(text)=>{
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+ }
 
   const handleSendMsg=async(msg)=>{
     await axios.post(`${sendMessageRoute}`,{
