@@ -49,7 +49,21 @@ io.on("connection",(socket)=>{
     socket.on("send-msg",(data)=>{
         const sendUserSocket = onlineUsers.get(data.to);
         if(sendUserSocket){
-            socket.to(sendUserSocket).emit("msg-recieve",data.message)
+            socket.to(sendUserSocket).emit("msg-recieve",data)
+        }
+    })
+    socket.on("delete-event",(data)=>{
+        if(data.data[0].to){
+            const sendUserSocket = onlineUsers.get(data.data[0].to);
+            if(sendUserSocket){
+                socket.to(sendUserSocket).emit("after-delete-event",data.data)
+            }
+        }
+    })
+    socket.on("like-event",(data)=>{
+        const sendUserSocket = onlineUsers.get(data.to);
+        if(sendUserSocket){
+            socket.to(sendUserSocket).emit("after-like-event",data.data)
         }
     })
 })

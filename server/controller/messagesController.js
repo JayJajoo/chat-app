@@ -19,7 +19,7 @@ module.exports.addMessage=async (req,res,next)=>{
             message:{text:encyData},
             users:[from,to],
             sender:from,
-            isLiked:false
+            isLiked:false,
         })
         if(data){
             return res.json({msg:"message added successfully",id:data._id,isLiked:data.isLiked})
@@ -62,7 +62,7 @@ module.exports.delMessages=async (req,res,next)=>{
     try {
         const isDeleted=await messageModel.findByIdAndDelete(req.params.id.toString())
         res.json({
-            msg:true,
+            success:true,
             data:req.params.id,
         })
     } catch (error) {
