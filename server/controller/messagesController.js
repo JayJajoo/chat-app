@@ -18,10 +18,11 @@ module.exports.addMessage=async (req,res,next)=>{
             iv:base64data,
             message:{text:encyData},
             users:[from,to],
-            sender:from
+            sender:from,
+            isLiked:false
         })
         if(data){
-            return res.json({msg:"message added successfully"})
+            return res.json({msg:"message added successfully",id:data._id,isLiked:data.isLiked})
         }
         else{
             return res.json({msg:"failed to add message"})
@@ -38,7 +39,7 @@ module.exports.getMessages=async (req,res,next)=>{
             users:{
                 $all:[from,to]
             }
-        }).sort({updatedAt:1});
+        }).sort({createdAt:1});
         const projectMessages=messages.map((msg)=>{
             const originalData=Buffer.from(msg.iv,"base64");
             const decipher=crypto.createDecipheriv(algorithm,key,originalData)
@@ -48,6 +49,7 @@ module.exports.getMessages=async (req,res,next)=>{
                 id:msg._id,
                 fromSelf:msg.sender.toString()===from,
                 message:decyData,
+                isLiked:msg.isLiked
             }
         })
         res.json(projectMessages)
@@ -57,15 +59,33 @@ module.exports.getMessages=async (req,res,next)=>{
     }
 }
 module.exports.delMessages=async (req,res,next)=>{
-    console.log(req.params.id)
     try {
-        const isDeleted=await messageModel.deleteOne({
-            id:req.params.id.toString(),
-        })
+        const isDeleted=await messageModel.findByIdAndDelete(req.params.id.toString())
         res.json({
             msg:true,
             data:req.params.id,
         })
+    } catch (error) {
+        next(error)
+    }
+}
+
+module.exports.likeMessages=async (req,res,next)=>{
+    console.log(req.params.id.toString())
+    try {
+        const likeUpdated=await messageModel.findByIdAndUpdate(
+            req.params.id.toString(),{isLiked:true}
+        )
+        if(likeUpdated.modifiedCount===1){
+            res.json({
+                success:true,
+            })
+        }
+        else{
+            res.json({
+                success:false,
+            })
+        }
     } catch (error) {
         next(error)
     }

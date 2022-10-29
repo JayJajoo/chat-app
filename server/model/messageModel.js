@@ -14,6 +14,10 @@ const messageSchema=new mongoose.Schema({
         ref:"User",
         required:true,
     },
+    isLiked:{
+      type:Boolean,
+      default:false,
+    }
   },
   {
     timestamps:true,
