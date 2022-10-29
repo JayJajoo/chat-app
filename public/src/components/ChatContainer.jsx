@@ -3,13 +3,17 @@ import styled from 'styled-components'
 import Logout from './Logout';
 import Input from './Input';
 import axios from "axios"
-import {sendMessageRoute,getMessagesRoute} from "../utils/APIRoutes"
+import {sendMessageRoute,getMessagesRoute,delMessagesRoute} from "../utils/APIRoutes"
 import {v4 as uuidv4} from "uuid"
 
 function ChatContainer({currentChat,currentUser,socket}) {
   const scrollRef=useRef()
   const [messages,setMessages] = useState([])
   const [arrivalMessage,setArrivalMessage]=useState(null)
+  const [isClickedDel,setIsClickedDel]=useState(false)
+  const [delMsg,setDelMsg]=useState({
+    id:undefined,
+  });
   useEffect(()=>{
     const onChanegCurrentChat=async()=>{
       if(currentChat){
@@ -23,12 +27,38 @@ function ChatContainer({currentChat,currentUser,socket}) {
     onChanegCurrentChat();
   },[currentChat])
 
-  const encrypt=(text)=>{
-    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
- }
+  useEffect(()=>{
+    const deleteMsg=async()=>{
+      if(isClickedDel && delMsg.id!==undefined){
+        const data=await axios.delete(`${delMessagesRoute}/${delMsg.id}`)
+        if(data.data.msg){
+          console.log("messages deleted")
+          console.log(data.data.data)
+        }
+        else{
+          console.log("unable to delete the message")
+        }
+        const newMsgs=messages.filter((msg)=>{
+          if(msg.id!==delMsg.id){
+            return msg
+          }
+        })
+        setMessages(newMsgs)
+        setDelMsg({
+          id:undefined,
+        })
+      }
+    }
+    deleteMsg();
+  },[isClickedDel,delMsg])
+
+  const handleDelete=async(msg)=>{
+    console.log(msg)
+    setIsClickedDel(true);
+    setDelMsg({
+      id:msg.id,
+    })
+  }
 
   const handleSendMsg=async(msg)=>{
     await axios.post(`${sendMessageRoute}`,{
@@ -75,7 +105,6 @@ function ChatContainer({currentChat,currentUser,socket}) {
         </div>
         <Logout></Logout>
       </div>
-      <div className="chat-messages">
         <div className="chat-messages">
           {
             messages.map((message)=>{
@@ -86,6 +115,9 @@ function ChatContainer({currentChat,currentUser,socket}) {
                       <p>
                         {message.message}
                       </p>
+                      <div className={`del_button ${message.fromSelf ? 'visible' : 'disable'}`}>
+                        <button type='button' onClick={()=>handleDelete(message)}>Del</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -94,7 +126,6 @@ function ChatContainer({currentChat,currentUser,socket}) {
           }
         </div>
         <Input handleSendMsg={handleSendMsg}></Input>
-      </div>
     </Container>
   )
 }
@@ -147,7 +178,8 @@ const Container = styled.div`
       display: flex;
       align-items: center;
       .content {
-        max-width: 40%;
+        display:flex;
+        max-width: max-content;
         overflow-wrap: break-word;
         padding: 1rem;
         font-size: 1.1rem;
@@ -155,6 +187,19 @@ const Container = styled.div`
         color: #d1d1d1;
         @media screen and (min-width: 720px) and (max-width: 1080px) {
           max-width: 70%;
+        }
+        .del_button{
+          margin-left:1rem;
+          flex:1;
+          width:100%;
+          justify-content: flex-end;
+          button{
+            color:white;
+            background-color: transparent;
+          }
+        }
+        p{
+          flex:1;
         }
       }
     }
@@ -169,6 +214,13 @@ const Container = styled.div`
       .content {
         background-color: #9900ff20;
       }
+    }
+    .visible{
+      visibility: visible;
+    }
+    .disable{
+      width:0;
+      visibility: hidden;
     }
   }
 `;
