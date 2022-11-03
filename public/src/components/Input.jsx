@@ -2,8 +2,15 @@ import React,{useState} from 'react'
 import styled from 'styled-components'
 import Picker from "emoji-picker-react"
 import {IoMdSend} from "react-icons/io"
+import axios from "axios"
+import {getSavedMessagesRoute} from "../utils/APIRoutes"
 import {BsEmojiSmileFill} from "react-icons/bs"
-function Input({handleSendMsg}) {
+import {MdSavedSearch} from "react-icons/md"
+import {AiOutlineArrowRight} from "react-icons/ai"
+
+function Input({handleSendMsg,currentChat,currentUser}) {
+  const [showSavedMsg,setShowSavedMsg]=useState(false)
+  const [savedMsg,setSavedMsg]=useState([])
   const [showEmojis,setShowEmojis]=useState(false)
   const [msg,setMsg] = useState("")
   const handleEmojis=()=>{
@@ -22,6 +29,22 @@ function Input({handleSendMsg}) {
       handleSendMsg(msg)
       setMsg('')
     }
+  }
+
+  const handleGetSavedMsg=async()=>{
+    const data=await axios.post(`${getSavedMessagesRoute}`,{
+      from:currentUser._id,
+      to:currentChat._id,
+    })
+    setShowSavedMsg(true)
+    console.log(data.data)
+    setSavedMsg(data.data)
+    document.getElementById("contentBlurToogle").style.filter="blur(10px)"
+  }
+
+  const disableBlur=()=>{
+    setShowSavedMsg(false)
+    document.getElementById("contentBlurToogle").style.filter="blur(0)"
   }
 
   return (
@@ -46,6 +69,37 @@ function Input({handleSendMsg}) {
                 <IoMdSend></IoMdSend>
             </button>
         </form>
+        <button className='saved_messaged_button' onClick={()=>handleGetSavedMsg()}><MdSavedSearch></MdSavedSearch></button>
+        {
+          showSavedMsg &&
+          <div id="savedInformation">
+          { 
+            savedMsg.map((msg)=>{
+              return (
+                <div className='message'>
+                  <div className="messageInfo">
+                    <div className="senderInfo">
+                      <span className="avatar">
+                        <img src={`data:image/svg+xml;base64,${msg.senderPhoto}`} alt="avatar" />
+                      </span>
+                      <span className='sender'>{msg.senderName}</span>
+                    </div>
+                    <span className='arrow'><AiOutlineArrowRight></AiOutlineArrowRight></span>
+                    <div className="recieverInfo">
+                    <span className="avatar">
+                      <img src={`data:image/svg+xml;base64,${msg.recieverPhoto}`} alt="avatar" />
+                    </span>
+                    <span className='reciever'>{msg.recieverName}</span>
+                    </div>
+                  </div>
+                  <div className="messageContent">{msg.message}</div>
+                </div>
+              )
+            })
+          }
+          <button id="closeSavedInfoButton" onClick={()=>disableBlur()}>Close</button>
+        </div> 
+        }
     </Container> 
   )
 }
@@ -53,10 +107,104 @@ function Input({handleSendMsg}) {
 const Container = styled.div`
   display: grid;
   align-items: center;
-  grid-template-columns: 5% 95%;
+  grid-template-columns: 5% 90% 5%;
   background-color: #080420;
   padding: 0 2rem;
   padding-bottom:0.3rem;
+  #savedInformation{
+    border:5px solid #9a86f3;
+    border-radius:10px;
+    top:17%;
+    background:transparent;
+    position:absolute;
+    margin-left:auto;
+    margin-right:auto;
+    height:70vh;
+    width:55vw;
+    opacity:1;
+    padding-top:1rem;
+    padding-left:1rem;
+    padding-right:3rem;
+    padding-bottom:1rem;
+    color:white;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    .message{
+      background:transparent;
+      padding:1rem 1rem;
+      margin:1rem 1rem;
+      width:100%;
+      border:3px solid #9a86f3;
+      border-radius:20px;
+      .messageInfo{
+        overflow-x:hidden;
+        display:flex;
+        align-items: center;
+        letter-spacing:0.1rem;
+        font-size:1.3rem;
+        margin-bottom:0.5rem;
+        .senderInfo{
+          align-items:center;
+          display:flex;
+          .avatar {
+            img {
+              height: 3rem;
+              margin-right:1rem;
+            }
+          }
+          .sender{
+            margin-right:1rem;
+            font-weight:bolder;
+            color:#32a879;
+          }
+        }
+        .arrow{
+          margin-right:1rem;
+          color:#96173d;
+        }
+        .recieverInfo{
+          align-items:center;
+          display:flex;
+          .avatar {
+            img {
+              height: 3rem;
+              margin-right:1rem;
+            }
+          }
+          .reciever{
+            width:100%;
+            margin-right:1rem;
+            letter-spacing:0.1rem;
+            font-weight:bolder;
+            color:#3294a8;
+          }
+        }
+      }
+      .messageContent{
+        margin-left:3rem;
+        font-weight:bolder;
+        color:#c7580e;
+      }
+    }
+    #closeSavedInfoButton{
+      padding:0.5rem 0;
+      width:15vw;
+      background:none;
+      color:white;
+      border:3px solid #b05454;
+      border-radius:5px;
+      margin-left:40%;
+    }
+    &::-webkit-scrollbar {
+      width: 0.2rem;
+      &-thumb {
+        margin-left:1rem;
+        background-color: #ffffff39;
+        width: 0.1rem;
+        border-radius: 1rem;
+      }
+    }
+  }
   .button-container {
     display: flex;
     align-items: center;
@@ -77,6 +225,15 @@ const Container = styled.div`
       }
     }
   }
+  .saved_messaged_button{
+    padding-top:8px;
+    border:5px solid #9a86f3;
+    border-radius:5px;
+    color:violet;
+    background:transparent;
+    margin-left:-3rem;
+    font-size:1.2rem;
+  }
   .input-container {
     width: 90%;
     border-radius: 2rem;
@@ -85,7 +242,7 @@ const Container = styled.div`
     gap: 2rem;
     background-color: #ffffff34;
     input {
-      width: 90%;
+      width: 100%;
       height: 60%;
       background-color: transparent;
       color: white;

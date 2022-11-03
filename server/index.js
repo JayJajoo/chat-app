@@ -1,5 +1,6 @@
 const userRoutes = require("./routes/userRoutes")
 const messageRoutes=require("./routes/messagesRoute")
+const saveMsgRoutes=require("./routes/saveMsgRoute")
 
 const express=require('express')
 const cors=require('cors')
@@ -14,6 +15,7 @@ app.use(express.json())
 
 app.use("/api/auth",userRoutes)
 app.use("/api/messages",messageRoutes)
+app.use("/api/save",saveMsgRoutes)
 
 app.options("http://api.multiavatar.com/45678945/", cors(), (req, res) => {
     res.sendStatus(200);
@@ -48,6 +50,7 @@ io.on("connection",(socket)=>{
     })
     socket.on("send-msg",(data)=>{
         const sendUserSocket = onlineUsers.get(data.to);
+        console.log(data)
         if(sendUserSocket){
             socket.to(sendUserSocket).emit("msg-recieve",data)
         }
@@ -62,6 +65,7 @@ io.on("connection",(socket)=>{
     })
     socket.on("like-event",(data)=>{
         const sendUserSocket = onlineUsers.get(data.to);
+        console.log(sendUserSocket)
         if(sendUserSocket){
             socket.to(sendUserSocket).emit("after-like-event",data.data)
         }

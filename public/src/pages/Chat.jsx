@@ -70,7 +70,7 @@ function Chat() {
 
   return (
     <Container>
-      <div className="container">
+      <div id="container">
         <Contacts contacts={contacts} currentUser={currentUser} changeChat={handleChatChange}></Contacts>
         {isLoaded && currentChat===undefined ?
           <Welcome currentUser={currentUser}></Welcome> 
@@ -98,7 +98,7 @@ const Container = styled.div`
   gap: 1rem;
   align-items: center;
   background-color: #131324;
-  .container {
+  #container {
     height: 85vh;
     width: 85vw;
     background-color: #00000076;

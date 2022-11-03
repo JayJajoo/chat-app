@@ -5,6 +5,7 @@ import Chat  from "./pages/Chat"
 import Login from "./pages/Login"
 import Home from "./pages/Home"
 import SetAvatar from './components/SetAvatar'
+import SavedMessages from './components/SavedMessages'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path='/login' element={<Login/>}></Route>
       <Route path="/setAvatar" element={<SetAvatar/>}></Route>
       <Route path='/chat' element={<Chat/>}></Route>
+      <Route path='/savedMessages' element={<SavedMessages/>}></Route>
      </Routes>
     </BrowserRouter>
   )

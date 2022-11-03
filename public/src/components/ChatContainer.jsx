@@ -3,10 +3,8 @@ import styled from 'styled-components'
 import Logout from './Logout';
 import Input from './Input';
 import axios from "axios"
-import {sendMessageRoute,getMessagesRoute,delMessagesRoute,likeMessagesRoute} from "../utils/APIRoutes"
+import {sendMessageRoute,getMessagesRoute,delMessagesRoute,likeMessagesRoute,saveMessagesRoute,getSavedMessagesRoute} from "../utils/APIRoutes"
 import {v4 as uuidv4} from "uuid"
-import { FcLike } from 'react-icons/fc';
-import {AiFillDelete} from "react-icons/ai"
 
 function ChatContainer({currentChat,currentUser,socket}) {
   const scrollRef=useRef()
@@ -40,17 +38,18 @@ function ChatContainer({currentChat,currentUser,socket}) {
       to:currentChat._id,
       from:currentUser._id,
       message:msg,
-      fromSelf:data.data.fromSelf,
+      isSaved:data.data.isSaved
     })
     const msgs=[...messages]
-    msgs.push({fromSelf:true,message:msg,id:data.data.id,isLiked:data.data.isLiked})
+    msgs.push({fromSelf:true,message:msg,id:data.data.id,isLiked:data.data.isLiked,isSaved:data.data.isSaved})
     setMessages(msgs)
   }
 
   useEffect(()=>{
     if(socket.current){
       socket.current.on("msg-recieve",(msg)=>{
-        setArrivalMessage({fromSelf:false,message:msg.message,id:msg.id,isLiked:msg.isLiked})
+        console.log(msg)
+        setArrivalMessage({fromSelf:msg.fromSelf,message:msg.message,id:msg.id,isLiked:msg.isLiked,isSaved:msg.isSaved})
       })
     }
   },[])
@@ -81,6 +80,7 @@ function ChatContainer({currentChat,currentUser,socket}) {
     setMessages(newMessages)
     const m1=newMessages.map((m)=>{
       return({
+        isSaved:m.isSaved,
         to:currentChat._id,
         from:currentUser._id,
         fromSelf:!m.fromSelf,
@@ -128,9 +128,10 @@ function ChatContainer({currentChat,currentUser,socket}) {
     const afterLikeData=messages.map((m)=>{
         if(msg.id===m.id){
           const updatedMsg={
+            isLiked:true,
+            isSaved:m.isSaved,
             fromSelf:m.fromSelf,
             id:m.id,
-            isLiked:true,
             message:m.message,
           }
           console.log(updatedMsg)
@@ -174,47 +175,71 @@ function ChatContainer({currentChat,currentUser,socket}) {
     } 
   },[afterLikeMsg])
 
+  const handleSave=async(msg)=>{
+    const data=await axios.post(`${saveMessagesRoute}/${msg.id}`,{
+        to:currentChat._id,
+        from:currentUser._id,
+        id:msg.id,
+        message:msg.message,
+    })
+    const newMsg=messages.map((m)=>{
+      if(m.id===msg.id){
+        m.isSaved=true;
+        return m;
+      }
+      else{
+        return m;
+      }
+    })
+    setMessages(newMsg)
+  }
+
   return (
     <div>
     <Container>
-      <div className="chat-header">
-        <div className="user-details">
-          <div className="avatar">
-            <img src={`data:image/svg+xml;base64,${currentChat.avatarPhoto}`} alt="avatar" />
+      <div id="contentBlurToogle">
+        <div className="chat-header">
+          <div className="user-details">
+            <div className="avatar">
+              <img src={`data:image/svg+xml;base64,${currentChat.avatarPhoto}`} alt="avatar" />
+            </div>
+            <div className="username">
+              <h3>{currentChat.username}</h3>
+            </div>
           </div>
-          <div className="username">
-            <h3>{currentChat.username}</h3>
-          </div>
+          <Logout></Logout>
         </div>
-        <Logout></Logout>
-      </div>
-        <div className="chat-messages">
-          {
-            messages.map((message)=>{
-              return(
-                <div ref={scrollRef} key={uuidv4()}>
-                  <div className={`message ${message.fromSelf ? 'sended' : 'recieved '}`}>
-                    <div className="content" id={`${message.isLiked ? "liked" : ""}`}>
-                      <p>
-                        {message.message}
-                      </p>
-                      <div className="options">
-                        <div className={`del_button ${message.fromSelf ? 'visible' : 'disable'}`}>
-                          <button type='button' onClick={()=>handleDelete(message)}><AiFillDelete></AiFillDelete></button>
-                        </div>
-                        <div className={`like_button ${!message.fromSelf && !message.isLiked ? 'visible' : 'disable'}`}>
-                          <button type='button' onClick={()=>handleLike(message)}><FcLike></FcLike></button>
+          <div className="chat-messages">
+            {
+              messages.map((message)=>{
+                return(
+                  <div ref={scrollRef} key={uuidv4()}>
+                    <div className={`message ${message.fromSelf ? 'sended' : 'recieved '}`}>
+                      <div className="content" id={`${message.isLiked ? "liked" : ""}`}>
+                        <p>
+                          {message.message}
+                        </p>
+                        <div className="options">
+                          <div className={`del_button ${message.fromSelf ? 'visible' : 'disable'}`}>
+                            <button type='button' onClick={()=>handleDelete(message)}>Del</button>
+                          </div>
+                          <div className={`like_button ${!message.fromSelf && !message.isLiked ? 'visible' : 'disable'}`}>
+                            <button type='button' onClick={()=>handleLike(message)}>Like</button>
+                          </div>
+                          <div className={`save_button ${!message.isSaved ? 'visible' : 'disable'}`}>
+                            <button type='button' onClick={()=>handleSave(message)}>Save</button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )
-            })
-          }
-        </div>
+                )
+              })
+            }
+          </div>
+      </div>
     </Container>
-    <Input handleSendMsg={handleSendMsg}></Input>
+    <Input handleSendMsg={handleSendMsg} currentUser={currentUser} currentChat={currentChat}></Input>
     </div>
   )
 }
@@ -227,108 +252,115 @@ const Container = styled.div`
   @media screen and (min-width: 720px) and (max-width: 1080px) {
     grid-template-rows: 15% 70% 15%;
   }
-  .chat-header {
-    margin-top:1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 2rem;
-    .user-details {
+  #contentBlurToogle{
+    transition:ease-in 1s;
+    .chat-header {
+      margin-top:1rem;
       display: flex;
+      justify-content: space-between;
       align-items: center;
+      padding: 0 2rem;
+      .user-details {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        .avatar {
+          img {
+            height: 3rem;
+          }
+        }
+        .username {
+          h3 {
+            color: white;
+          }
+        }
+      }
+    }
+    .chat-messages {
+      height:75vh;
+      padding: 1rem 2rem;
+      display: flex;
+      flex-direction: column;
       gap: 1rem;
-      .avatar {
-        img {
-          height: 3rem;
+      overflow: auto;
+      &::-webkit-scrollbar {
+        width: 0.2rem;
+        &-thumb {
+          background-color: #ffffff39;
+          width: 0.1rem;
+          border-radius: 1rem;
         }
       }
-      .username {
-        h3 {
-          color: white;
-        }
-      }
-    }
-  }
-  .chat-messages {
-    height:75vh;
-    padding: 1rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow: auto;
-    &::-webkit-scrollbar {
-      width: 0.2rem;
-      &-thumb {
-        background-color: #ffffff39;
-        width: 0.1rem;
-        border-radius: 1rem;
-      }
-    }
-    .message {
-      display: flex;
-      align-items: center;
-      .content {
-        display:flex;
-        flex-direction:column;
-        max-width: max-content;
-        overflow-wrap: break-word;
-        padding: 1rem;
-        font-size: 1.1rem;
-        border-radius: 1rem;
-        color: #d1d1d1;
-        @media screen and (min-width: 720px) and (max-width: 1080px) {
-          max-width: 70%;
-        }
-        .options{
-          width:max-content;
-          flex:1;
+      .message {
+        display: flex;
+        align-items: center;
+        .content {
           display:flex;
-          flex-direction:column;
-          .del_button{
-            width:100%;
-            justify-content: flex-end;
-            button{
-              border:none;
-              margin-top:0.5rem;
-              color:white;
-              background-color: transparent;
+          max-width: max-content;
+          overflow-wrap: break-word;
+          padding: 1rem;
+          font-size: 1.1rem;
+          border-radius: 1rem;
+          color: #d1d1d1;
+          @media screen and (min-width: 720px) and (max-width: 1080px) {
+            max-width: 70%;
+          }
+          .options{
+            margin:0 0.5rem;
+            width:max-content;
+            flex:1;
+            display:flex;
+            flex-direction:row;
+            .del_button{
+              width:100%;
+              justify-content: flex-end;
+              button{
+                color:white;
+                background-color: transparent;
+              }
+            }
+            .like_button{
+              padding-left:0.3rem;
+              button{
+                color:white;
+                background-color: transparent;
+              }
+            }
+            .save_button{
+              margin-left:0.3rem;
+              button{
+                color:white;
+                background-color: transparent;
+              }
             }
           }
-          .like_button{
-            button{
-              border:none;
-              margin-top:0.5rem;
-              color:white;
-              background-color: transparent;
-            }
+          p{
+            flex:1;
           }
         }
-        p{
-          flex:1;
+      }
+      .sended {
+        justify-content: flex-end;
+        .content {
+          background-color: #4f04ff21;
         }
       }
-    }
-    .sended {
-      justify-content: flex-end;
-      .content {
-        background-color: #4f04ff21;
+      .recieved {
+        justify-content: flex-start;
+        .content {
+          background-color: #9900ff20;
+        }
       }
-    }
-    .recieved {
-      justify-content: flex-start;
-      .content {
-        background-color: #9900ff20;
+      .visible{
+        visibility: visible;
       }
-    }
-    .visible{
-      visibility: visible;
-    }
-    .disable{
-      margin-bottom:-2rem;
-      visibility: hidden;
-    }
-    #liked{
-      border:5px solid red;
+      .disable{
+        width:0;
+        visibility: hidden;
+      }
+      #liked{
+        border:5px solid green;
+      }
     }
   }
 `;

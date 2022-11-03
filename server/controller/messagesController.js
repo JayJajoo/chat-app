@@ -20,9 +20,10 @@ module.exports.addMessage=async (req,res,next)=>{
             users:[from,to],
             sender:from,
             isLiked:false,
+            isSaved:false,
         })
         if(data){
-            return res.json({msg:"message added successfully",id:data._id,isLiked:data.isLiked})
+            return res.json({msg:"message added successfully",id:data._id,isLiked:data.isLiked,isSaved:data.isSaved})
         }
         else{
             return res.json({msg:"failed to add message"})
@@ -49,7 +50,8 @@ module.exports.getMessages=async (req,res,next)=>{
                 id:msg._id,
                 fromSelf:msg.sender.toString()===from,
                 message:decyData,
-                isLiked:msg.isLiked
+                isLiked:msg.isLiked,
+                isSaved:msg.isSaved
             }
         })
         res.json(projectMessages)

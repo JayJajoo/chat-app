@@ -1,6 +1,6 @@
 const mongoose=require("mongoose");
 
-const messageSchema=new mongoose.Schema({
+const savedMessageSchema=new mongoose.Schema({
     iv:String,
     message:{
         text:{
@@ -8,19 +8,15 @@ const messageSchema=new mongoose.Schema({
             required:true
         },
     },
-    users:Array,
     sender:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true,
     },
-    isLiked:{
-      type:Boolean,
-      default:false,
-    },
-    isSaved:{
-      type:Boolean,
-      default:false,
+    reciever:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:true,
     }
   },
   {
@@ -28,4 +24,4 @@ const messageSchema=new mongoose.Schema({
   },
 )
 
-module.exports=mongoose.model("Messages",messageSchema)
+module.exports=mongoose.model("savedMessages",savedMessageSchema)
