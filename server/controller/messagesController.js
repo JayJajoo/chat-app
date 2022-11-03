@@ -30,7 +30,6 @@ module.exports.addMessage=async (req,res,next)=>{
         }
     } catch (error) {
         next(error)
-        console.log(error)
     }
 }
 module.exports.getMessages=async (req,res,next)=>{
@@ -57,7 +56,6 @@ module.exports.getMessages=async (req,res,next)=>{
         res.json(projectMessages)
     } catch (error) {
         next(error)
-        console.log(error)
     }
 }
 module.exports.delMessages=async (req,res,next)=>{
@@ -73,7 +71,6 @@ module.exports.delMessages=async (req,res,next)=>{
 }
 
 module.exports.likeMessages=async (req,res,next)=>{
-    console.log(req.params.id.toString())
     try {
         const likeUpdated=await messageModel.findByIdAndUpdate(
             req.params.id.toString(),{isLiked:true}

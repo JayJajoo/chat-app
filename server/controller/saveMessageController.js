@@ -72,6 +72,5 @@ module.exports.getSavedMessages=async (req,res,next)=>{
         res.json(projectMessages)
     } catch (error) {
         next(error)
-        console.log(error)
     }   
 }

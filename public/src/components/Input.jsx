@@ -13,6 +13,8 @@ function Input({handleSendMsg,currentChat,currentUser}) {
   const [savedMsg,setSavedMsg]=useState([])
   const [showEmojis,setShowEmojis]=useState(false)
   const [msg,setMsg] = useState("")
+
+  
   const handleEmojis=()=>{
     setShowEmojis(!showEmojis)
   }
@@ -37,7 +39,6 @@ function Input({handleSendMsg,currentChat,currentUser}) {
       to:currentChat._id,
     })
     setShowSavedMsg(true)
-    console.log(data.data)
     setSavedMsg(data.data)
     document.getElementById("contentBlurToogle").style.filter="blur(10px)"
   }

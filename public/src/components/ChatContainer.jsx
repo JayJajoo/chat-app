@@ -1,3 +1,4 @@
+import { ToastContainer, toast } from 'react-toastify'
 import React,{useState,useEffect, useRef} from 'react'
 import styled from 'styled-components'
 import Logout from './Logout';
@@ -5,6 +6,10 @@ import Input from './Input';
 import axios from "axios"
 import {sendMessageRoute,getMessagesRoute,delMessagesRoute,likeMessagesRoute,saveMessagesRoute,getSavedMessagesRoute} from "../utils/APIRoutes"
 import {v4 as uuidv4} from "uuid"
+import {BsSave} from "react-icons/bs"
+import {FcLike} from "react-icons/fc"
+import { MdDelete } from 'react-icons/md';
+
 
 function ChatContainer({currentChat,currentUser,socket}) {
   const scrollRef=useRef()
@@ -12,7 +17,18 @@ function ChatContainer({currentChat,currentUser,socket}) {
   const [arrivalMessage,setArrivalMessage]=useState(null)
   const [afterDeleteMsg,setAfterDeleteMsg]=useState(null)
   const [afterLikeMsg,setAfterLikeMsg] = useState(null)
-  
+
+  const successMessage=(message)=>{
+    toast.success(message,{
+      position:"top-center",
+      autoClose:1000,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"dark"
+    });
+  }
+
+
   useEffect(()=>{
     const onChanegCurrentChat=async()=>{
       if(currentChat){
@@ -32,6 +48,7 @@ function ChatContainer({currentChat,currentUser,socket}) {
       to:currentChat._id,
       message:msg,
     })
+    successMessage("Message Sent")
     socket.current.emit("send-msg",{
       id:data.data.id,
       isLiked:data.data.isLiked,
@@ -48,7 +65,6 @@ function ChatContainer({currentChat,currentUser,socket}) {
   useEffect(()=>{
     if(socket.current){
       socket.current.on("msg-recieve",(msg)=>{
-        console.log(msg)
         setArrivalMessage({fromSelf:msg.fromSelf,message:msg.message,id:msg.id,isLiked:msg.isLiked,isSaved:msg.isSaved})
       })
     }
@@ -67,10 +83,10 @@ function ChatContainer({currentChat,currentUser,socket}) {
   const handleDelete=async (msg)=>{
     const data=await axios.delete(`${delMessagesRoute}/${msg.id}`)
     if(data.data.success){
-      console.log("deleted message successfully")
+      successMessage("Message Deleted")
     }
     else{
-      console.log("message deletion failed")
+      successMessage("Message Deletion Failed")
     }
     const newMessages=messages.filter((m)=>{
       if(m.id!==msg.id){
@@ -134,7 +150,6 @@ function ChatContainer({currentChat,currentUser,socket}) {
             id:m.id,
             message:m.message,
           }
-          console.log(updatedMsg)
           return updatedMsg
         }
         else{
@@ -144,6 +159,7 @@ function ChatContainer({currentChat,currentUser,socket}) {
         }
       })
     setMessages(afterLikeData)
+    successMessage("Message Liked")
     socket.current.emit("like-event",{
       data:msg,
       to:currentChat._id,
@@ -221,13 +237,13 @@ function ChatContainer({currentChat,currentUser,socket}) {
                         </p>
                         <div className="options">
                           <div className={`del_button ${message.fromSelf ? 'visible' : 'disable'}`}>
-                            <button type='button' onClick={()=>handleDelete(message)}>Del</button>
+                            <button type='button' onClick={()=>handleDelete(message)}><MdDelete></MdDelete></button>
                           </div>
                           <div className={`like_button ${!message.fromSelf && !message.isLiked ? 'visible' : 'disable'}`}>
-                            <button type='button' onClick={()=>handleLike(message)}>Like</button>
+                            <button type='button' onClick={()=>handleLike(message)}><FcLike></FcLike></button>
                           </div>
                           <div className={`save_button ${!message.isSaved ? 'visible' : 'disable'}`}>
-                            <button type='button' onClick={()=>handleSave(message)}>Save</button>
+                            <button type='button' onClick={()=>handleSave(message)}><BsSave></BsSave></button>
                           </div>
                         </div>
                       </div>
@@ -240,6 +256,7 @@ function ChatContainer({currentChat,currentUser,socket}) {
       </div>
     </Container>
     <Input handleSendMsg={handleSendMsg} currentUser={currentUser} currentChat={currentChat}></Input>
+    <ToastContainer></ToastContainer>
     </div>
   )
 }
@@ -315,21 +332,26 @@ const Container = styled.div`
               width:100%;
               justify-content: flex-end;
               button{
-                color:white;
+                border:none;
+                color:#c41664;
                 background-color: transparent;
+                &::hover{
+                  color:blue;
+                }
               }
             }
             .like_button{
               padding-left:0.3rem;
               button{
-                color:white;
+                border:none;
                 background-color: transparent;
               }
             }
             .save_button{
               margin-left:0.3rem;
               button{
-                color:white;
+                border:none;
+                color:#d95585;
                 background-color: transparent;
               }
             }
