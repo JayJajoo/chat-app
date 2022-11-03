@@ -129,6 +129,10 @@ const Container = styled.div`
     color:white;
     overflow-y:scroll;
     overflow-x:hidden;
+    @media screen and (min-width: 600px) and (max-width: 1080px) {
+      height:70vh;
+      width:50vw;
+    }
     .message{
       background:transparent;
       padding:1rem 1rem;
@@ -184,7 +188,7 @@ const Container = styled.div`
         margin-left:3rem;
         font-weight:bolder;
         color:#c7580e;
-      }
+      }  
     }
     #closeSavedInfoButton{
       padding:0.5rem 0;
