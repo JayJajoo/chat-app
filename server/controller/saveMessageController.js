@@ -24,6 +24,9 @@ module.exports.saveMessage=async (req,res,next)=>{
         reciever:to,
         sender:from,
     })
+
+    console.log(data)
+
     if(data){
         return res.json({msg:"message added successfully"})
     }
@@ -52,6 +55,9 @@ module.exports.getSavedMessages=async (req,res,next)=>{
             names[i].push(sender.avatarPhoto)
             names[i].push(reciever.avatarPhoto)
         }
+
+        console.log(names)
+
         const projectMessages=messages.map((msg,index)=>{
             const originalData=Buffer.from(msg.iv,"base64");
             const decipher=crypto.createDecipheriv(algorithm,key,originalData)

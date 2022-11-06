@@ -65,7 +65,7 @@ function ChatContainer({currentChat,currentUser,socket}) {
   useEffect(()=>{
     if(socket.current){
       socket.current.on("msg-recieve",(msg)=>{
-        setArrivalMessage({fromSelf:msg.fromSelf,message:msg.message,id:msg.id,isLiked:msg.isLiked,isSaved:msg.isSaved})
+        setArrivalMessage({fromSelf:false,message:msg.message,id:msg.id,isLiked:msg.isLiked,isSaved:msg.isSaved})
       })
     }
   },[])
@@ -192,9 +192,20 @@ function ChatContainer({currentChat,currentUser,socket}) {
   },[afterLikeMsg])
 
   const handleSave=async(msg)=>{
+    console.log(msg)
+    let to=null
+    let from=null
+    if(msg.fromSelf){
+      from=currentUser._id
+      to=currentChat._id
+    }
+    else{
+      from=currentChat._id
+      to=currentUser._id
+    }
     const data=await axios.post(`${saveMessagesRoute}/${msg.id}`,{
-        to:currentChat._id,
-        from:currentUser._id,
+        to:to,
+        from:from,
         id:msg.id,
         message:msg.message,
     })
